@@ -1,69 +1,50 @@
-import {TYPES} from './const.js';
 import {createPromoList} from './data.js';
-import {numIncline, getDeleteChild} from './utils.js';
 
-const card = document.querySelector('#card').content;
-const fragment = document.createDocumentFragment();
-let map = document.querySelector('.map__canvas');
+const cardTemplate = document.querySelector('#card').content.querySelector('.popup');
 
-const getFeatureElements = (currentArray, featureFragment) => {
-  currentArray.forEach(featureTitle => {
-    let newFeature = document.createElement('li');
-    newFeature.classList.add('popup__feature');
-    newFeature.classList.add('popup__feature--' + featureTitle);
-    featureFragment.appendChild(newFeature);
-  });
+const featureType = {
+  palace: 'Дворец',
+  flat: 'Квартира',
+  house: 'Дом',
+  bungalow: 'Бунгало',
 };
 
-const getImageElements = (imageArray, photo, imageFragment) => {
-  imageArray.forEach(image => {
-    let imageClone = photo.cloneNode();
-    imageClone.src = image;
-    imageFragment.appendChild(imageClone);
-  });
+const createCard = (createPromoList) => {
+  const cardElement = cardTemplate.cloneNode(true);
+  const cardFeatures = cardElement.querySelector('.popup__features');
+  const cardPhotos = cardElement.querySelector('.popup__photos');
+  const photo = cardElement.querySelector('.popup__photo');
+
+  const generateFeatures = () => {
+    cardFeatures.innerHTML = '';
+    createPromoList.offer.features.forEach((item, i) => {
+      const feature = document.createElement('li');
+      feature.classList.add('popup__feature', 'popup__feature--' + createPromoList.offer.features[i]);
+      cardFeatures.appendChild(feature);
+    });
+  };
+
+  const generatePhotos = () => {
+    cardPhotos.innerHTML = '';
+    createPromoList.offer.photos.forEach((item, i) => {
+      photo.src = createPromoList.offer.photos[i];
+      cardPhotos.appendChild(photo.cloneNode(true));
+    });
+  };
+
+  cardElement.querySelector('.popup__title').textContent = createPromoList.offer.title;
+  cardElement.querySelector('.popup__text--address').textContent = createPromoList.offer.address;
+  cardElement.querySelector('.popup__text--price').textContent = createPromoList.offer.price + ' ₽/ночь';
+  cardElement.querySelector('.popup__type').textContent = featureType[createPromoList.offer.type];
+  cardElement.querySelector('.popup__text--capacity').textContent = createPromoList.offer.rooms + ' комнаты для ' + createPromoList.offer.guests + ' гостей';
+  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + createPromoList.offer.checkin + ', выезд до ' + createPromoList.offer.checkout;
+  cardElement.querySelector('.popup__description').textContent = createPromoList.offer.description;
+  cardElement.querySelector('.popup__avatar').src = createPromoList.author.avatar;
+  generateFeatures();
+  generatePhotos();
+
+  return cardElement;
 };
 
-for (let i = 0; i < createPromoList.length; i++) {
-  const cardClone = card.cloneNode(true);
-  let offerTitle = cardClone.querySelector('.popup__title');
-  let offerAdress = cardClone.querySelector('.popup__text--address');
-  let offerPrice = cardClone.querySelector('.popup__text--price');
-  let offerType = cardClone.querySelector('.popup__type');
-  let offerCapacity = cardClone.querySelector('.popup__text--capacity');
-  let offerTextTime = cardClone.querySelector('.popup__text--time');
-  let offerFeatures = cardClone.querySelector('.popup__features');
-  let offerDescription = cardClone.querySelector('.popup__description');
-  let offerPhotos = cardClone.querySelector('.popup__photos');
-  let offerPhoto = cardClone.querySelector('.popup__photo');
-  let authorAvatar = cardClone.querySelector('.popup__avatar');
-  offerTitle.textContent = createPromoList[i].offer.title;
-  offerAdress.textContent = createPromoList[i].offer.address;
-  offerPrice.textContent = ` ${createPromoList[i].offer.price} ₽/ночь`;
-  offerCapacity.textContent = `${createPromoList[i].offer.rooms} ${numIncline(createPromoList[i].offer.rooms, ['комната', 'комнаты', 'комнат'])} для ${createPromoList[i].offer.guests} гостей`;
-  offerTextTime.textContent = `Заезд после ${createPromoList[i].offer.checkin} выезд до ${createPromoList[i].offer.checkout}`;
-  getDeleteChild(offerFeatures);
-  getDeleteChild(offerPhotos);
-  getFeatureElements(createPromoList[i].offer.features, offerFeatures);
-  getImageElements(createPromoList[i].offer.photos, offerPhoto, offerPhotos);
-  offerDescription.textContent = createPromoList[i].offer.description;
-  authorAvatar.src = createPromoList[i].author.avatar;
-
-  switch (createPromoList[i].offer.type) {
-    case TYPES[0]:
-      offerType.textContent = 'Квартира';
-      break;
-    case TYPES[1]:
-      offerType.textContent = 'Бунгало';
-      break;
-    case TYPES[2]:
-      offerType.textContent = 'Дом';
-      break;
-    case TYPES[3]:
-      offerType.textContent = 'Дворец';
-      break;
-  }
-
-  fragment.appendChild(cardClone);
-}
-
-map.appendChild(fragment.firstElementChild);
+createPromoList;
+export {createCard};
